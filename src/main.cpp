@@ -1,29 +1,45 @@
 #include <Arduino.h>
-#include <vector>
 
-// Constants
-constexpr int flexPins[5] = { A0, A1, A2, A3, A4 };
-constexpr int flexThreshold = 3600;
+namespace config
+{
+  constexpr int kFlexPins[] = {A0, A1, A2, A3, A4};
+  constexpr size_t kNumFlexSensors = sizeof(kFlexPins) / sizeof(kFlexPins[0]);
+  constexpr int kFlexThreshold = 3600;
+  constexpr int kBaudRate = 115200; 
+}
 
-void setup() {
-  Serial.begin(9600);
+void setupFlexPins();
+void readFlexPins();
 
-  for (const int flexPin : flexPins){
-    pinMode(flexPin, INPUT);
+void setup()
+{
+  Serial.begin(config::kBaudRate);
+  setupFlexPins();
+}
+
+void loop()
+{
+  readFlexPins();
+  delay(1000); 
+}
+
+void setupFlexPins()
+{
+  for (size_t i = 0; i < config::kNumFlexSensors; ++i)
+  {
+    pinMode(config::kFlexPins[i], INPUT);
   }
 }
 
-void loop() {
-  for (const int flexPin : flexPins){
-    readFlexPin(flexPin);
+void readFlexPins()
+{
+  printf("=========== FLEX SENSORS ===========");
+  for (size_t i = 0; i < config::kNumFlexSensors; ++i)
+  {
+    int flex_value = analogRead(config::kFlexPins[i]);
+    bool is_over_threshold = flex_value > config::kFlexThreshold;
+
+    printf("Flex Pin: A%d | Raw Value: %d | Flexed: %s\n", i, flex_value, is_over_threshold ? "YES" : "NO");
   }
-}
-
-void readFlexPin(const int flexPin) {
-  int flexValue;
-  flexValue = analogRead(flexPin);
-  
-  bool isOverThreshold = flexValue > flexThreshold;
-
-  printf("Flex Pin: %d | Raw Value: %d | Flexed: %s", flexPin, flexValue, flexThreshold ? "YES" : "NO"); 
+  printf("=========== FLEX SENSORS ===========");
 }
