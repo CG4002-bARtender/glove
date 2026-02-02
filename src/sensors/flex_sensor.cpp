@@ -17,7 +17,7 @@ void FlexSensor::read()
     {
         int flex_value = analogRead(config::kFlexPins[i]);
 
-        Serial.printf("[Flex Pin: A%d]: %d", i, flex_value);
+        Serial.printf("[Flex Pin: A%d]: %d\n", i, flex_value);
 
         m_data.flex_values[i] = flex_value;
     }
