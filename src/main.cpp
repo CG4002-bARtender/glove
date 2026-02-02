@@ -1,18 +1,29 @@
 #include <Arduino.h>
+#include <vector>
 
-// put function declarations here:
-int myFunction(int, int);
+// Constants
+constexpr int flexPins[5] = { A0, A1, A2, A3, A4 };
+constexpr int flexThreshold = 3600;
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+  Serial.begin(9600);
+
+  for (const int flexPin : flexPins){
+    pinMode(flexPin, INPUT);
+  }
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  for (const int flexPin : flexPins){
+    readFlexPin(flexPin);
+  }
 }
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+void readFlexPin(const int flexPin) {
+  int flexValue;
+  flexValue = analogRead(flexPin);
+  
+  bool isOverThreshold = flexValue > flexThreshold;
+
+  printf("Flex Pin: %d | Raw Value: %d | Flexed: %s", flexPin, flexValue, flexThreshold ? "YES" : "NO"); 
 }
