@@ -1,23 +1,20 @@
 #include <Arduino.h>
-
-// DFRobot FireBeetle2 ESP32-E onboard LED is on GPIO 2
-constexpr int kLedPin = 2;
-constexpr int kBlinkDelayMs = 500;
+#include "../config.h"
 
 void setup()
 {
-  pinMode(kLedPin, OUTPUT);
-  Serial.begin(9600);
+  pinMode(config::kLedPin, OUTPUT);
+  Serial.begin(config::kBaudRate);
   Serial.println("Blink script running...");
 }
 
 void loop()
 {
-  digitalWrite(kLedPin, HIGH);
+  digitalWrite(config::kLedPin, HIGH);
   Serial.println("LED ON");
-  delay(kBlinkDelayMs);
+  delay(config::kBlinkDelayMs);
 
-  digitalWrite(kLedPin, LOW);
+  digitalWrite(config::kLedPin, LOW);
   Serial.println("LED OFF");
-  delay(kBlinkDelayMs);
+  delay(config::kBlinkDelayMs);
 }

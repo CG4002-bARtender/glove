@@ -1,13 +1,17 @@
 #include "mqtt_client.h"
+#include "../config.h"
 
-MqttClient::MqttClient(const char* broker, int port, const char* clientId)
+MqttClient::MqttClient(const char* broker, int port, const char* clientId, unsigned long publishIntervalMs)
     : m_wifiClient(),
       m_ipstack(m_wifiClient),
       m_client(m_ipstack),
       m_broker(broker),
       m_port(port),
       m_clientId(clientId),
-      m_connected(false)
+      m_connected(false),
+      m_publishIntervalMs(publishIntervalMs),
+      m_lastPublishMs(0),
+      m_messageCount(0)
 {
 }
 
@@ -29,7 +33,17 @@ void MqttClient::loop()
     Serial.println("MQTT disconnected. Reconnecting...");
     connectMqtt();
   }
-  m_client.yield(10);
+  m_client.yield(config::kMqttYieldTimeoutMs);
+}
+
+bool MqttClient::shouldPublish(unsigned long now)
+{
+  if (now - m_lastPublishMs >= m_publishIntervalMs)
+  {
+    m_lastPublishMs = now;
+    return true;
+  }
+  return false;
 }
 
 bool MqttClient::publish(const char* topic, const JsonDocument& doc)
@@ -61,6 +75,8 @@ bool MqttClient::publish(const char* topic, const char* payload)
   }
 
   Serial.printf("Published to %s: %s\n", topic, payload);
+  m_messageCount++;
+  
   return true;
 }
 
@@ -94,7 +110,7 @@ bool MqttClient::connectMqtt()
 
   MQTTPacket_connectData options = MQTTPacket_connectData_initializer;
   options.clientID.cstring = (char*)m_clientId;
-  options.keepAliveInterval = 60;
+  options.keepAliveInterval = config::kMqttKeepAliveSec;
 
   rc = m_client.connect(options);
   if (rc != 0)

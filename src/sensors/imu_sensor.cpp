@@ -24,7 +24,7 @@ void ImuSensor::setup()
 
 void ImuSensor::read()
 {
-  if (!m_connected && !m_mpu.testConnection())
+  if (!m_connected || !m_mpu.testConnection())
   {
     Serial.println("Failed to read IMU data: MPU is disconnected.");
     return;

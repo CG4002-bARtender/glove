@@ -3,12 +3,9 @@
 #include "../config.h"
 #include "../comms/mqtt_client.h"
 
-MqttClient g_mqtt(config::kMqttBroker, config::kMqttPort, config::kMqttClientId);
+MqttClient g_mqtt(config::kMqttBroker, config::kMqttPort, config::kMqttClientId, config::kMqttPublishIntervalMs);
 
-unsigned long g_lastPublishMs = 0;
-int g_messageCount = 0;
-
-void createDummyData(JsonDocument& doc);
+void createDummyData(JsonDocument &doc);
 
 void setup()
 {
@@ -28,10 +25,9 @@ void loop()
   g_mqtt.loop();
 
   unsigned long now = millis();
-  if (now - g_lastPublishMs >= config::kMqttPublishIntervalMs)
-  {
-    g_lastPublishMs = now;
 
+  if (g_mqtt.shouldPublish(now))
+  {
     JsonDocument doc;
     createDummyData(doc);
 
@@ -39,14 +35,16 @@ void loop()
   }
 }
 
-void createDummyData(JsonDocument& doc)
+void createDummyData(JsonDocument &doc)
 {
-  doc["msg_id"] = g_messageCount++;
+  doc["msg_id"] = g_mqtt.getMessageCount();
   doc["timestamp"] = millis();
 
   JsonArray flex = doc["flex"].to<JsonArray>();
-  for (int i = 0; i < 5; i++)
+  for (size_t i = 0; i < config::kNumFlexSensors; i++)
+  {
     flex.add(random(2000, 4000));
+  }
 
   JsonObject imu = doc["imu"].to<JsonObject>();
   JsonArray accel = imu["accel"].to<JsonArray>();

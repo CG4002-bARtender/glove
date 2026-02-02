@@ -7,12 +7,9 @@
 
 ImuSensor g_imuSensor;
 FlexSensor g_flexSensor;
-MqttClient g_mqtt(config::kMqttBroker, config::kMqttPort, config::kMqttClientId);
+MqttClient g_mqtt(config::kMqttBroker, config::kMqttPort, config::kMqttClientId, config::kMqttPublishIntervalMs);
 
-unsigned long g_lastPublishMs = 0;
-int g_messageCount = 0;
-
-void createSensorPayload(JsonDocument& doc);
+void createSensorPayload(JsonDocument& doc, unsigned long now);
 
 void setup()
 {
@@ -50,24 +47,23 @@ void loop()
     g_flexSensor.read();
   }
 
-  if (now - g_lastPublishMs >= config::kMqttPublishIntervalMs)
+  if (g_mqtt.shouldPublish(now))
   {
-    g_lastPublishMs = now;
-
     JsonDocument doc;
-    createSensorPayload(doc);
+    createSensorPayload(doc, now);
 
     g_mqtt.publish(config::kMqttTopic, doc);
   }
 }
 
-void createSensorPayload(JsonDocument& doc)
+void createSensorPayload(JsonDocument& doc, unsigned long now)
 {
-  doc["msg_id"] = g_messageCount++;
-  doc["timestamp"] = millis();
+  doc["msg_id"] = g_mqtt.getMessageCount();
+  doc["timestamp"] = now;
 
   const FlexData& flexData = g_flexSensor.getData();
   JsonArray flex = doc["flex"].to<JsonArray>();
+  
   for (size_t i = 0; i < config::kNumFlexSensors; i++)
   {
     flex.add(flexData.flex_values[i]);
