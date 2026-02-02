@@ -6,8 +6,8 @@
 
 struct ImuData
 {
-  int16_t accel[3];  // x, y, z
-  int16_t gyro[3];   // x, y, z
+  int16_t accel[3]; 
+  int16_t gyro[3]; 
 };
 
 class ImuSensor : public Sensor

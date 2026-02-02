@@ -5,7 +5,7 @@ void setup()
 {
   pinMode(config::kLedPin, OUTPUT);
   Serial.begin(config::kBaudRate);
-  Serial.println("Blink script running...");
+  Serial.println("=== Blink Test Script ===");
 }
 
 void loop()

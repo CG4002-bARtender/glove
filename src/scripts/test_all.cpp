@@ -73,12 +73,11 @@ void createSensorPayload(JsonDocument& doc, unsigned long now)
   JsonObject imu = doc["imu"].to<JsonObject>();
 
   JsonArray accel = imu["accel"].to<JsonArray>();
-  accel.add(imuData.accel[0]);
-  accel.add(imuData.accel[1]);
-  accel.add(imuData.accel[2]);
-
   JsonArray gyro = imu["gyro"].to<JsonArray>();
-  gyro.add(imuData.gyro[0]);
-  gyro.add(imuData.gyro[1]);
-  gyro.add(imuData.gyro[2]);
+
+  for (size_t i = 0; i < 3; i++)
+  {
+    accel.add(imuData.accel[i]);
+    gyro.add(imuData.gyro[i]);
+  }
 }
