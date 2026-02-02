@@ -5,7 +5,7 @@
 
 struct FlexData
 {
-  int flex_values[config::kNumFlexSensors];
+  int flex[config::kNumFlexSensors];
 };
 
 class FlexSensor : public Sensor

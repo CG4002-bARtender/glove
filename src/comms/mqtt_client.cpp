@@ -48,7 +48,7 @@ bool MqttClient::shouldPublish(unsigned long now)
 
 bool MqttClient::publish(const char* topic, const JsonDocument& doc)
 {
-  char buffer[512];
+  char buffer[config::kMqttJsonBufferSize];
   serializeJson(doc, buffer);
   return publish(topic, buffer);
 }
@@ -79,7 +79,6 @@ bool MqttClient::publish(const char* topic, const char* payload)
   
   return true;
 }
-
 
 void MqttClient::connectWifi(const char* ssid, const char* password)
 {

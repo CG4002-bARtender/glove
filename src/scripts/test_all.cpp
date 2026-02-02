@@ -66,7 +66,7 @@ void createSensorPayload(JsonDocument& doc, unsigned long now)
   
   for (size_t i = 0; i < config::kNumFlexSensors; i++)
   {
-    flex.add(flexData.flex_values[i]);
+    flex.add(flexData.flex[i]);
   }
 
   const ImuData& imuData = g_imuSensor.getData();
