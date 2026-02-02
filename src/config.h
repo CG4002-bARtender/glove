@@ -15,4 +15,15 @@ namespace config
 
   // IMU config
   constexpr unsigned long kImuIntervalMs = 20;  // 50Hz
+
+  // WiFi config
+  constexpr const char* kWifiSsid = "YOUR_WIFI_SSID";
+  constexpr const char* kWifiPassword = "YOUR_WIFI_PASSWORD";
+
+  // MQTT config
+  constexpr const char* kMqttBroker = "broker.hivemq.com";
+  constexpr int kMqttPort = 1883;
+  constexpr const char* kMqttClientId = "esp32_glove";
+  constexpr const char* kMqttTopic = "cg4002/glove/sensors";
+  constexpr unsigned long kMqttPublishIntervalMs = 2000;
 }
