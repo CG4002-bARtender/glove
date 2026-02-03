@@ -7,7 +7,8 @@
 
 ImuSensor g_imuSensor;
 FlexSensor g_flexSensor;
-MqttClient g_mqtt(config::kMqttBroker, config::kMqttPort, config::kMqttClientId, config::kMqttPublishIntervalMs);
+MqttClient g_mqtt(config::kMqttBroker, config::kMqttPort, config::kMqttClientId, config::kMqttPublishIntervalMs,
+                  config::kMqttUsername, config::kMqttPassword);
 
 void createSensorPayload(JsonDocument& doc, unsigned long now);
 

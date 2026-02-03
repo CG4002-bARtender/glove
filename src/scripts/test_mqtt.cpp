@@ -3,7 +3,8 @@
 #include "../config.h"
 #include "../comms/mqtt_client.h"
 
-MqttClient g_mqtt(config::kMqttBroker, config::kMqttPort, config::kMqttClientId, config::kMqttPublishIntervalMs);
+MqttClient g_mqtt(config::kMqttBroker, config::kMqttPort, config::kMqttClientId, config::kMqttPublishIntervalMs,
+                  config::kMqttUsername, config::kMqttPassword);
 
 void createDummyData(JsonDocument &doc);
 

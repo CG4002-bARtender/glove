@@ -20,14 +20,16 @@ namespace config
   constexpr unsigned long kImuIntervalMs = 20;  // 50Hz
 
   // WiFi config
-  constexpr const char* kWifiSsid = "YOUR_WIFI_SSID";
-  constexpr const char* kWifiPassword = "YOUR_WIFI_PASSWORD";
+  constexpr const char* kWifiSsid = "IphoneAlam";
+  constexpr const char* kWifiPassword = "pasuhagu";
 
   // MQTT config
-  constexpr const char* kMqttBroker = "broker.hivemq.com";
-  constexpr int kMqttPort = 1883;
+  constexpr const char* kMqttBroker = "k12141b9.ala.eu-central-1.emqxsl.com";
+  constexpr int kMqttPort = 8883;
+  constexpr const char* kMqttUsername = "test";  
+  constexpr const char* kMqttPassword = "test";  
   constexpr const char* kMqttClientId = "esp32_glove";
-  constexpr const char* kMqttTopic = "sensors";
+  constexpr const char* kMqttTopic = "glove";
   constexpr unsigned long kMqttPublishIntervalMs = 2000;
   constexpr int kMqttYieldTimeoutMs = 10;
   constexpr int kMqttKeepAliveSec = 60;

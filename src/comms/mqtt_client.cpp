@@ -1,18 +1,21 @@
 #include "mqtt_client.h"
 #include "../config.h"
 
-MqttClient::MqttClient(const char* broker, int port, const char* clientId, unsigned long publishIntervalMs)
+MqttClient::MqttClient(const char* broker, int port, const char* clientId, unsigned long publishIntervalMs,
+                       const char* username, const char* password)
     : m_wifiClient(),
-      m_ipstack(m_wifiClient),
-      m_client(m_ipstack),
+      m_client(m_wifiClient),
       m_broker(broker),
       m_port(port),
       m_clientId(clientId),
-      m_connected(false),
+      m_username(username),
+      m_password(password),
       m_publishIntervalMs(publishIntervalMs),
       m_lastPublishMs(0),
       m_messageCount(0)
 {
+  m_wifiClient.setInsecure();
+  m_client.setServer(m_broker, m_port);
 }
 
 bool MqttClient::connect(const char* ssid, const char* password)
@@ -23,7 +26,7 @@ bool MqttClient::connect(const char* ssid, const char* password)
 
 bool MqttClient::isConnected()
 {
-  return m_connected && m_client.isConnected();
+  return m_client.connected();
 }
 
 void MqttClient::loop()
@@ -33,7 +36,7 @@ void MqttClient::loop()
     Serial.println("MQTT disconnected. Reconnecting...");
     connectMqtt();
   }
-  m_client.yield(config::kMqttYieldTimeoutMs);
+  m_client.loop();
 }
 
 bool MqttClient::shouldPublish(unsigned long now)
@@ -61,22 +64,15 @@ bool MqttClient::publish(const char* topic, const char* payload)
     return false;
   }
 
-  MQTT::Message message;
-  message.qos = MQTT::QOS0;
-  message.retained = false;
-  message.payload = (void*)payload;
-  message.payloadlen = strlen(payload);
-
-  int rc = m_client.publish(topic, message);
-  if (rc != 0)
+  bool success = m_client.publish(topic, payload);
+  if (!success)
   {
-    Serial.printf("Publish failed, rc=%d\n", rc);
+    Serial.println("Publish failed");
     return false;
   }
 
   Serial.printf("Published to %s: %s\n", topic, payload);
   m_messageCount++;
-  
   return true;
 }
 
@@ -99,27 +95,22 @@ bool MqttClient::connectMqtt()
 {
   Serial.printf("Connecting to MQTT: %s:%d\n", m_broker, m_port);
 
-  int rc = m_ipstack.connect((char*) m_broker, m_port);
-  if (rc != 0)
+  bool success;
+  if (m_username != nullptr && m_password != nullptr)
   {
-    Serial.printf("TCP connect failed, rc=%d\n", rc);
-    m_connected = false;
-    return false;
+    success = m_client.connect(m_clientId, m_username, m_password);
+  }
+  else
+  {
+    success = m_client.connect(m_clientId);
   }
 
-  MQTTPacket_connectData options = MQTTPacket_connectData_initializer;
-  options.clientID.cstring = (char*)m_clientId;
-  options.keepAliveInterval = config::kMqttKeepAliveSec;
-
-  rc = m_client.connect(options);
-  if (rc != 0)
+  if (!success)
   {
-    Serial.printf("MQTT connect failed, rc=%d\n", rc);
-    m_connected = false;
+    Serial.printf("MQTT connect failed, state=%d\n", m_client.state());
     return false;
   }
 
   Serial.println("MQTT connected!");
-  m_connected = true;
   return true;
 }

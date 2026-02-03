@@ -2,17 +2,17 @@
 
 #include <Arduino.h>
 #include <WiFi.h>
-#include <IPStack.h>
-#include <Countdown.h>
-#include <MQTTClient.h>
+#include <WiFiClientSecure.h>
+#include <PubSubClient.h>
 #include <ArduinoJson.h>
 
 class MqttClient
 {
 public:
-  MqttClient(const char* broker, int port, const char* clientId, unsigned long publishIntervalMs);
+  MqttClient(const char* broker, int port, const char* clientId, unsigned long publishIntervalMs,
+             const char* username = nullptr, const char* password = nullptr);
 
-  bool connect(const char* ssid, const char* password);
+  bool connect(const char* ssid, const char* wifiPassword);
   bool isConnected();
   void loop();
 
@@ -26,14 +26,14 @@ private:
   void connectWifi(const char* ssid, const char* password);
   bool connectMqtt();
 
-  WiFiClient m_wifiClient;
-  IPStack m_ipstack;
-  MQTT::Client<IPStack, Countdown> m_client;
+  WiFiClientSecure m_wifiClient;
+  PubSubClient m_client;
 
   const char* m_broker;
   int m_port;
   const char* m_clientId;
-  bool m_connected;
+  const char* m_username;
+  const char* m_password;
 
   unsigned long m_publishIntervalMs;
   unsigned long m_lastPublishMs;
