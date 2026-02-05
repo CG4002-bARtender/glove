@@ -20,5 +20,6 @@ void loop()
   if (g_imuSensor.shouldRead(now))
   {
     g_imuSensor.read();
+    g_imuSensor.print();
   }
 }

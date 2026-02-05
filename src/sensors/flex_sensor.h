@@ -15,6 +15,7 @@ public:
 
   void setup() override;
   void read() override;
+  void print() override;
 
   const FlexData& getData() const { return m_data; }
 

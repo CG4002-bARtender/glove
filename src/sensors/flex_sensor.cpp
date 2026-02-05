@@ -12,14 +12,18 @@ void FlexSensor::setup()
 
 void FlexSensor::read()
 {
+  for (size_t i = 0; i < config::kNumFlexSensors; ++i)
+  {
+    m_data.flex[i] = analogRead(config::kFlexPins[i]);
+  }
+}
+
+void FlexSensor::print()
+{
   Serial.printf("=========== FLEX SENSORS ===========\n");
   for (size_t i = 0; i < config::kNumFlexSensors; ++i)
   {
-    int flex_value = analogRead(config::kFlexPins[i]);
-
-    Serial.printf("[Flex Pin: A%d]: %d\n", i, flex_value);
-
-    m_data.flex[i] = flex_value;
+    Serial.printf("[Flex Pin: A%d]: %d\n", i, m_data.flex[i]);
   }
   Serial.printf("=====================================\n");
 }

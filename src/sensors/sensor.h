@@ -10,6 +10,7 @@ public:
 
   virtual void setup() = 0;
   virtual void read() = 0;
+  virtual void print() = 0;
 
   bool shouldRead(unsigned long now)
   {

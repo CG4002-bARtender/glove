@@ -17,6 +17,7 @@ public:
 
   void setup() override;
   void read() override;
+  void print() override;
 
   const ImuData& getData() const { return m_data; }
   bool isConnected() const { return m_connected; }
