@@ -24,6 +24,22 @@ namespace config
   constexpr int kI2S_WS = 17;
   constexpr int kI2S_SCK = 14;
   constexpr int kI2S_SD = 27;
+  constexpr int kSampleRate = 16000;
+
+  // Record & Send config
+  constexpr int kRecordButtonPin = 26;
+  constexpr unsigned long kDebounceMs = 50;
+  constexpr int kRecordBitsPerSample = 16;
+  constexpr int kRecordChannels = 1;
+  constexpr float kMaxRecordSeconds = 3.0f;
+  constexpr size_t kRecordBufferSize = (size_t)(kSampleRate * kMaxRecordSeconds) * (kRecordBitsPerSample / 8) * kRecordChannels;
+  constexpr size_t kWavHeaderSize = 44;
+
+  // TCP server config
+  constexpr const char* kTcpServerHost = "192.168.1.17";
+  constexpr int kTcpServerPort = 12345;
+  constexpr unsigned long kTcpConnectTimeoutMs = 5000;
+  constexpr size_t kTcpSendChunkSize = 1024;
 
   // Hall Effect config
   constexpr int kHallPins[] = {A0};

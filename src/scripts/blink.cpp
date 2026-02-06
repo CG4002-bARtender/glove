@@ -3,18 +3,22 @@
 
 void setup()
 {
-  pinMode(config::kLedPin, OUTPUT);
   Serial.begin(config::kBaudRate);
-  Serial.println("=== Blink Test Script ===");
+  pinMode(config::kLedPin, OUTPUT);
+  pinMode(config::kRecordButtonPin, INPUT_PULLUP);
+  Serial.println("=== Button Test ===");
+  Serial.printf("Button pin: GPIO %d (INPUT_PULLUP)\n", config::kRecordButtonPin);
+  Serial.println("Press button to toggle LED...");
 }
 
 void loop()
 {
-  digitalWrite(config::kLedPin, HIGH);
-  Serial.println("LED ON");
-  delay(config::kBlinkDelayMs);
+  bool pressed = !digitalRead(config::kRecordButtonPin);
+  digitalWrite(config::kLedPin, pressed ? HIGH : LOW);
 
-  digitalWrite(config::kLedPin, LOW);
-  Serial.println("LED OFF");
-  delay(config::kBlinkDelayMs);
+  if (pressed)
+  {
+    Serial.println("PRESSED");
+    delay(200);
+  }
 }
