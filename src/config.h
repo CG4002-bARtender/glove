@@ -26,8 +26,8 @@ namespace config
   constexpr int kI2S_SD = 27;
 
   // WiFi config
-  constexpr const char* kWifiSsid = "IphoneAlam";
-  constexpr const char* kWifiPassword = "pasuhagu";
+  constexpr const char* kWifiSsid = "Home-S";
+  constexpr const char* kWifiPassword = "selvan555";
 
   // MQTT config
   constexpr const char* kMqttBroker = "k12141b9.ala.eu-central-1.emqxsl.com";

@@ -15,7 +15,6 @@ void setup()
 
 void loop()
 {
-
   unsigned long now = millis();
 
   if (g_micSensor.shouldRead(now))
