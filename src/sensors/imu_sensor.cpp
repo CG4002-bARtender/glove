@@ -24,7 +24,10 @@ void ImuSensor::read()
   m_mpu.getMotion6(
       &m_data.accel[0], &m_data.accel[1], &m_data.accel[2],
       &m_data.gyro[0], &m_data.gyro[1], &m_data.gyro[2]);
+}
 
+void ImuSensor::print()
+{
   Serial.printf("=============== IMU ================\n");
   Serial.printf("[Accel] X: %6d  Y: %6d  Z: %6d\n", m_data.accel[0], m_data.accel[1], m_data.accel[2]);
   Serial.printf("[Gyro]  X: %6d  Y: %6d  Z: %6d\n", m_data.gyro[0], m_data.gyro[1], m_data.gyro[2]);

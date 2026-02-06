@@ -18,5 +18,6 @@ void loop()
   if (g_flexSensor.shouldRead(now))
   {
     g_flexSensor.read();
+    g_flexSensor.print();
   }
 }
