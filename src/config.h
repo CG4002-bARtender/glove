@@ -25,6 +25,11 @@ namespace config
   constexpr int kI2S_SCK = 14;
   constexpr int kI2S_SD = 27;
 
+  // Hall Effect config
+  constexpr int kHallPins[] = {A0};
+  constexpr size_t kNumHallSensors = sizeof(kHallPins) / sizeof(kHallPins[0]);
+  constexpr unsigned long kHallIntervalMs = 1000;
+
   // WiFi config
   constexpr const char* kWifiSsid = "Home-S";
   constexpr const char* kWifiPassword = "selvan555";
