@@ -19,6 +19,12 @@ namespace config
   // IMU config
   constexpr unsigned long kImuIntervalMs = 20;  // 50Hz
 
+  // Mic config
+  constexpr unsigned long kMicIntervalMs = 20;
+  constexpr int kI2S_WS = 17;
+  constexpr int kI2S_SCK = 14;
+  constexpr int kI2S_SD = 27;
+
   // WiFi config
   constexpr const char* kWifiSsid = "IphoneAlam";
   constexpr const char* kWifiPassword = "pasuhagu";
