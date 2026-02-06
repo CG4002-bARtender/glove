@@ -5,7 +5,7 @@
 namespace config
 {
   // Serial
-  constexpr int kBaudRate = 9600;
+  constexpr int kBaudRate = 115200;
 
   // Blink
   constexpr int kLedPin = 2;
