@@ -12,7 +12,7 @@ namespace config
   constexpr int kBlinkDelayMs = 500;  
 
   // Flex sensor config
-  constexpr int kFlexPins[] = {A0, A1, A2, A3, A4};
+  constexpr int kFlexPins[] = {A2};
   constexpr size_t kNumFlexSensors = sizeof(kFlexPins) / sizeof(kFlexPins[0]);
   constexpr unsigned long kFlexIntervalMs = 1000;
 
@@ -42,7 +42,7 @@ namespace config
   constexpr size_t kTcpSendChunkSize = 1024;
 
   // Hall Effect config
-  constexpr int kHallPins[] = {A0};
+  constexpr int kHallPins[] = {A0, A1};
   constexpr size_t kNumHallSensors = sizeof(kHallPins) / sizeof(kHallPins[0]);
   constexpr unsigned long kHallIntervalMs = 1000;
 
