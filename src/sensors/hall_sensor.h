@@ -3,11 +3,6 @@
 #include "sensor.h"
 #include "../config.h"
 
-struct HallData
-{
-  int Hall[config::kNumHallSensors];
-};
-
 class HallSensor : public Sensor
 {
 public:
@@ -17,8 +12,9 @@ public:
   void read() override;
   void print() override;
 
-  const HallData& getData() const { return m_data; }
-
 private:
-  HallData m_data;
+  void calibrate();
+
+  int offset_values[config::kNumHallSensors];
+  int baseline_values[config::kNumHallSensors];
 };

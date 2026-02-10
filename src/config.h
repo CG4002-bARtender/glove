@@ -12,7 +12,7 @@ namespace config
   constexpr int kBlinkDelayMs = 500;  
 
   // Flex sensor config
-  constexpr int kFlexPins[] = {A2};
+  constexpr int kFlexPins[] = {A0, A1, A2, A3, A4};
   constexpr size_t kNumFlexSensors = sizeof(kFlexPins) / sizeof(kFlexPins[0]);
   constexpr unsigned long kFlexIntervalMs = 1000;
 
@@ -36,7 +36,7 @@ namespace config
   constexpr size_t kWavHeaderSize = 44;
 
   // TCP server config
-  constexpr const char* kTcpServerHost = "192.168.1.17";
+  constexpr const char* kTcpServerHost = "10.204.228.253";
   constexpr int kTcpServerPort = 12345;
   constexpr unsigned long kTcpConnectTimeoutMs = 5000;
   constexpr size_t kTcpSendChunkSize = 1024;
@@ -47,8 +47,8 @@ namespace config
   constexpr unsigned long kHallIntervalMs = 1000;
 
   // WiFi config
-  constexpr const char* kWifiSsid = "Home-S";
-  constexpr const char* kWifiPassword = "selvan555";
+  constexpr const char* kWifiSsid = "Medea";
+  constexpr const char* kWifiPassword = "12345678";
 
   // MQTT config
   constexpr const char* kMqttBroker = "k12141b9.ala.eu-central-1.emqxsl.com";
@@ -61,4 +61,8 @@ namespace config
   constexpr int kMqttYieldTimeoutMs = 10;
   constexpr int kMqttKeepAliveSec = 60;
   constexpr size_t kMqttJsonBufferSize = 512;
+
+  // IMU Stream config
+  constexpr unsigned long kImuStreamPublishIntervalMs = 50;  // 20Hz
+  constexpr const char* kImuStreamTopic = "glove/imu";
 }
