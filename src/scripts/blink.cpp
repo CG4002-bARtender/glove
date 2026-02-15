@@ -3,17 +3,17 @@
 
 void setup()
 {
-  Serial.begin(config::kBaudRate);
-  pinMode(config::kLedPin, OUTPUT);
+  DEBUG_INIT();
+  pinMode(config::INBUILT_LED_PIN, OUTPUT);
 }
 
 void loop()
 {
   Serial.print("ON");
-  digitalWrite(config::kLedPin, HIGH);
-  delay(config::kBlinkDelayMs);
+  digitalWrite(config::INBUILT_LED_PIN, HIGH);
+  delay(config::BLINK_DELAY_MS);
 
   Serial.println("OFF");
-  digitalWrite(config::kLedPin, LOW);
-  delay(config::kBlinkDelayMs);
+  digitalWrite(config::INBUILT_LED_PIN, LOW);
+  delay(config::BLINK_DELAY_MS);
 }

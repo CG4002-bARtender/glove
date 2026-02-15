@@ -19,23 +19,24 @@ public:
   bool shouldPublish(unsigned long now);
   bool publish(const char* topic, const JsonDocument& doc);
   bool publish(const char* topic, const char* payload);
+  bool publish(const char* topic, const uint8_t* payload, unsigned int length);
 
-  int getMessageCount() const { return m_messageCount; }
+  int getMessageCount() const { return messageCount; }
 
 private:
   void connectWifi(const char* ssid, const char* password);
   bool connectMqtt();
 
-  WiFiClientSecure m_wifiClient;
-  PubSubClient m_client;
+  WiFiClientSecure wifiClient;
+  PubSubClient mqttClient;
 
-  const char* m_broker;
-  int m_port;
-  const char* m_clientId;
-  const char* m_username;
-  const char* m_password;
+  const char* broker;
+  int port;
+  const char* clientId;
+  const char* username;
+  const char* password;
 
-  unsigned long m_publishIntervalMs;
-  unsigned long m_lastPublishMs;
-  int m_messageCount;
+  unsigned long publishIntervalMs;
+  unsigned long lastPublishMs;
+  int messageCount;
 };

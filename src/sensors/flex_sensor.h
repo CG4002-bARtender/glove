@@ -3,11 +3,6 @@
 #include "sensor.h"
 #include "../config.h"
 
-struct FlexData
-{
-  int flex[config::kNumFlexSensors];
-};
-
 class FlexSensor : public Sensor
 {
 public:
@@ -17,8 +12,13 @@ public:
   void read() override;
   void print() override;
 
-  const FlexData& getData() const { return m_data; }
+  void calibrate(unsigned long durationMs = 5000);
+  const int* getData() const;
+  const float* getBaseline() const;
+  bool isCalibrated() const;
 
 private:
-  FlexData m_data;
+  int readings[config::FLEX_SENSOR_PINS_LEN];
+  float baseline[config::FLEX_SENSOR_PINS_LEN];
+  bool calibrated;
 };

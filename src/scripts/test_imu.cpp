@@ -6,9 +6,9 @@ ImuSensor g_imuSensor;
 
 void setup()
 {
-  Serial.begin(config::kBaudRate);
+  DEBUG_INIT();
   delay(1000);
-  Serial.println("=== IMU Sensor Test Script ===");
+  DEBUG_PRINTLN("=== IMU Sensor Test Script ===");
 
   g_imuSensor.setup();
 }
