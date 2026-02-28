@@ -1,6 +1,6 @@
 #include "flex_sensor.h"
 
-FlexSensor::FlexSensor() : Sensor(config::FLEX_INTERVAL_MS), readings{}, baseline{}, calibrated(false) {}
+FlexSensor::FlexSensor() : Sensor(config::FLEX_INTERVAL_MS), readings{}, baseline{} {}
 
 void FlexSensor::setup()
 {
@@ -14,52 +14,30 @@ void FlexSensor::read()
 {
   for (size_t i = 0; i < config::FLEX_SENSOR_PINS_LEN; ++i)
   {
-    readings[i] = analogRead(config::FLEX_SENSOR_PINS[i]);
+    readings[i] = analogRead(config::FLEX_SENSOR_PINS[i]) - baseline[i];
   }
 }
 
 void FlexSensor::print()
 {
-  Serial.printf("=========== FLEX SENSORS ===========\n");
+  DEBUG_PRINTLN("=========== FLEX SENSORS ==========");
   for (size_t i = 0; i < config::FLEX_SENSOR_PINS_LEN; ++i)
   {
-    Serial.printf("[Flex Pin: A%d]: %d\n", i, readings[i]);
+    DEBUG_PRINTF("[Flex Pin: A%d]: %d\n", i, readings[i]);
   }
-  Serial.printf("=====================================\n");
+  DEBUG_PRINTLN("=====================================");
 }
 
-void FlexSensor::calibrate(unsigned long durationMs)
+void FlexSensor::calibrate()
 {
-  long baselineSum[config::FLEX_SENSOR_PINS_LEN] = {};
-  int count = 0;
-  unsigned long start = millis();
+  for (size_t i = 0; i < config::FLEX_SENSOR_CALIBRATION_ROUNDS; ++i) {
+    for (size_t j = 0; j < config::FLEX_SENSOR_PINS_LEN; ++j) {
+      baseline[i] += analogRead(config::FLEX_SENSOR_PINS[j]);
+    }
+    delay(config::FLEX_SENSOR_CALIBRATION_DELAY);
+  } 
 
-  while (millis() - start < durationMs)
-  {
-    read();
-    for (size_t i = 0; i < config::FLEX_SENSOR_PINS_LEN; ++i)
-      baselineSum[i] += readings[i];
-    count++;
-    delay(intervalMs);
+  for (size_t j = 0; j < config::FLEX_SENSOR_PINS_LEN; ++j) {
+      baseline[j] /= config::FLEX_SENSOR_CALIBRATION_ROUNDS;
   }
-
-  for (size_t i = 0; i < config::FLEX_SENSOR_PINS_LEN; ++i)
-    baseline[i] = (float)baselineSum[i] / count;
-
-  calibrated = true;
-}
-
-const int* FlexSensor::getData() const
-{
-  return readings;
-}
-
-const float* FlexSensor::getBaseline() const
-{
-  return baseline;
-}
-
-bool FlexSensor::isCalibrated() const
-{
-  return calibrated;
 }

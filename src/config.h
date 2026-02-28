@@ -27,13 +27,18 @@ namespace config
   constexpr int         BLINK_DELAY_MS = 500;
 
   // IMU config
+  constexpr int         I2C_SDA_PIN = 22;     
+  constexpr int         I2C_SCL_PIN = 21;     
   constexpr int         I2C_CLOCK_SPEED = 100000;
   constexpr int         IMU_INTERVAL_MS = 33;
 
   // Flex config
-  constexpr int         FLEX_SENSOR_PINS[] = {A0, A1, A2, A3, A4};
+  constexpr int         FLEX_SENSOR_PINS[] = {A0,A1,A2,A3,A4};
   constexpr size_t      FLEX_SENSOR_PINS_LEN = sizeof(FLEX_SENSOR_PINS) / sizeof(int);
-  constexpr int         FLEX_INTERVAL_MS = 33;
+  constexpr int         FLEX_SENSOR_CALIBRATION_ROUNDS = 30;
+  constexpr int         FLEX_SENSOR_CALIBRATION_DELAY = 100;
+  constexpr int         FLEX_INTERVAL_MS = 330;
+  constexpr float       FLEX_FLEXED_THRESHOLD = 100.0f; // ADC counts above baseline = flexed
 
   // WiFi config
   constexpr const char* WIFI_SSID = "Medea";

@@ -12,9 +12,7 @@ public:
   void setup() override;
   void read() override;
   void print() override;
-
 private:
   MPU6050 mpu;
-  int16_t ax, ay, az;
-  int16_t gx, gy, gz;
+  int16_t values[6]; // ax, ay, az, gx, gy, gz
 };

@@ -9,11 +9,11 @@ void setup()
 
 void loop()
 {
-  Serial.print("ON");
+  DEBUG_PRINTLN("ON");
   digitalWrite(config::INBUILT_LED_PIN, HIGH);
   delay(config::BLINK_DELAY_MS);
 
-  Serial.println("OFF");
+  DEBUG_PRINTLN("OFF");
   digitalWrite(config::INBUILT_LED_PIN, LOW);
   delay(config::BLINK_DELAY_MS);
 }
