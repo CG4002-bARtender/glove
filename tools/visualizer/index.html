@@ -83,6 +83,25 @@
       #connect-btn:hover    { background: rgba(40, 40, 80, 0.9); border-color: #93c5fd; }
       #connect-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
+      #orient-btn {
+        pointer-events: all;
+        padding: 8px 18px;
+        border-radius: 8px;
+        border: 1px solid rgba(74, 222, 128, 0.4);
+        background: rgba(20, 40, 20, 0.85);
+        color: #86efac;
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        backdrop-filter: blur(8px);
+        transition: background 0.2s, border-color 0.2s;
+        width: fit-content;
+      }
+
+      #orient-btn:hover    { background: rgba(20, 60, 20, 0.9); border-color: #86efac; }
+      #orient-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
       /* ── Right-side flex bars ── */
       #flex-panel {
         position: fixed;
@@ -142,6 +161,7 @@
         <span id="status-text">Disconnected</span>
       </div>
       <button id="connect-btn">Connect</button>
+      <button id="orient-btn" disabled>Orient</button>
     </div>
 
     <!-- Finger flex bars: populated by main.js -->

@@ -38,6 +38,23 @@ namespace config
     constexpr int         INTERVAL_MS = 330;
   }
 
+  namespace buzzer {
+    constexpr int         PIN        = 13;
+    constexpr int         LEDC_CH    = 0;
+    constexpr int         LEDC_RES   = 8;    // bits
+  }
+
+  namespace rgb {
+    constexpr int         PIN_R      = 25;
+    constexpr int         PIN_G      = 26;
+    constexpr int         PIN_B      = 27;
+    constexpr int         LEDC_CH_R  = 1;
+    constexpr int         LEDC_CH_G  = 2;
+    constexpr int         LEDC_CH_B  = 3;
+    constexpr int         LEDC_FREQ  = 1000; // Hz
+    constexpr int         LEDC_RES   = 8;    // bits (0–255)
+  }
+
   namespace ble {
     constexpr const char* DEVICE_NAME       = "ESP32-Glove";
     constexpr const char* SERVICE_UUID      = "6E400001-B5A3-F393-E0A9-E50E24DCCA9E";

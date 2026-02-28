@@ -6,7 +6,20 @@ import { initUI } from './ui.js';
 const ACCEL_SCALE = 1.0 / 16384.0;            // g per LSB  (MPU6050 ±2 g)
 const GYRO_SCALE  = (Math.PI / 180) / 131.0;  // rad/s per LSB (±250 °/s)
 const FLEX_MAX    = 1500;                      // raw ADC units → full bend
-const CF_ALPHA    = 0.96;                      // complementary filter: gyro weight
+
+// Hardcoded IMU mounting correction.
+// Derived from observed axis behaviour:
+//   raise hand (pitch) → was +Y, should be −X  →  old_Y maps to −new_X
+//   roll right         → was +X, should be −Z  →  old_X maps to −new_Z
+//   yaw left           → was +Z, should be +Y  →  old_Z maps to +new_Y
+// Rotation matrix [[0,−1,0],[0,0,1],[−1,0,0]] → quaternion (w=0.5, x=−0.5, y=0.5, z=0.5)
+const MOUNT_CORR     = new THREE.Quaternion(-0.5, 0.5, 0.5, 0.5);  // x,y,z,w
+const MOUNT_CORR_INV = MOUNT_CORR.clone().invert();
+
+function correctedQuat() {
+  const q = madgwick.quaternion();
+  return MOUNT_CORR.clone().multiply(q).multiply(MOUNT_CORR_INV);
+}
 
 // ── Three.js setup ────────────────────────────────────────────────────────
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -54,7 +67,9 @@ const fingerPivots = FINGER_X.map((x) => {
   const mesh = new THREE.Mesh(geo, fingerMat);
   mesh.position.y = 0.24;            // pivot at base, mesh centre above it
   pivot.add(mesh);
-  pivot.add(Object.assign(new THREE.Mesh(geo, edgeMat), { position: mesh.position.clone() }));
+  const edgeMesh = new THREE.Mesh(geo, edgeMat);
+  edgeMesh.position.y = 0.24;
+  pivot.add(edgeMesh);
 
   handGroup.add(pivot);
   return pivot;
@@ -89,41 +104,111 @@ FINGER_LABELS.forEach((lbl) => {
   flexFills.push(fill);
 });
 
-// ── Orientation state (complementary filter) ──────────────────────────────
-const ori = { pitch: 0, roll: 0 };
-let lastTs = performance.now();
+// ── Madgwick AHRS filter ──────────────────────────────────────────────────
+// Fuses accel + all 3 gyro axes into a full quaternion orientation.
+// beta: algorithm gain — higher = trust accel more (stable but sluggish),
+//                        lower  = trust gyro more  (responsive but drifty).
+class Madgwick {
+  constructor(beta = 0.1) {
+    this.beta = beta;
+    this.q    = [1, 0, 0, 0];  // [w, x, y, z]
+  }
+
+  update(ax, ay, az, gx, gy, gz, dt) {
+    let [q0, q1, q2, q3] = this.q;
+
+    // Normalize accelerometer; bail if zero (free-fall / sensor fault)
+    const aNorm = Math.sqrt(ax*ax + ay*ay + az*az);
+    if (aNorm === 0) return;
+    ax /= aNorm; ay /= aNorm; az /= aNorm;
+
+    // Objective function: difference between predicted and measured gravity
+    const f1 = 2*(q1*q3 - q0*q2) - ax;
+    const f2 = 2*(q0*q1 + q2*q3) - ay;
+    const f3 = 2*(0.5 - q1*q1 - q2*q2) - az;
+
+    // Jacobian (J^T layout)
+    const j11 = -2*q2; const j12 =  2*q3; const j13 = -2*q0; const j14 =  2*q1;
+    const j21 =  2*q1; const j22 =  2*q0; const j23 =  2*q3; const j24 =  2*q2;
+    const j31 =  0;    const j32 = -4*q1; const j33 = -4*q2; const j34 =  0;
+
+    // Gradient (J^T · f), normalised
+    let s0 = j11*f1 + j21*f2 + j31*f3;
+    let s1 = j12*f1 + j22*f2 + j32*f3;
+    let s2 = j13*f1 + j23*f2 + j33*f3;
+    let s3 = j14*f1 + j24*f2 + j34*f3;
+    const sNorm = Math.sqrt(s0*s0 + s1*s1 + s2*s2 + s3*s3);
+    s0 /= sNorm; s1 /= sNorm; s2 /= sNorm; s3 /= sNorm;
+
+    // Quaternion derivative from gyroscope
+    const qd0 = 0.5 * (-q1*gx - q2*gy - q3*gz);
+    const qd1 = 0.5 * ( q0*gx + q2*gz - q3*gy);
+    const qd2 = 0.5 * ( q0*gy - q1*gz + q3*gx);
+    const qd3 = 0.5 * ( q0*gz + q1*gy - q2*gx);
+
+    // Integrate: gyro rate corrected by gradient-descent feedback
+    q0 += (qd0 - this.beta * s0) * dt;
+    q1 += (qd1 - this.beta * s1) * dt;
+    q2 += (qd2 - this.beta * s2) * dt;
+    q3 += (qd3 - this.beta * s3) * dt;
+
+    const qNorm = Math.sqrt(q0*q0 + q1*q1 + q2*q2 + q3*q3);
+    this.q = [q0/qNorm, q1/qNorm, q2/qNorm, q3/qNorm];
+  }
+
+  // THREE.Quaternion uses (x, y, z, w) order
+  quaternion() {
+    const [w, x, y, z] = this.q;
+    return new THREE.Quaternion(x, y, z, w);
+  }
+
+  reset() { this.q = [1, 0, 0, 0]; }
+}
+
+const madgwick = new Madgwick(0.1);
+
+// ── Reference frame ───────────────────────────────────────────────────────
+const refQuat = new THREE.Quaternion();
+let   hasRef  = false;
+let   lastTs  = performance.now();
+
+// ── Orient button ─────────────────────────────────────────────────────────
+const orientBtn = document.getElementById('orient-btn');
+orientBtn.disabled = true;
+
+orientBtn.addEventListener('click', () => {
+  refQuat.copy(correctedQuat());
+  hasRef = true;
+  orientBtn.textContent = 'Re-orient';
+});
 
 // ── Packet handler ────────────────────────────────────────────────────────
 function onPacket(pkt) {
   const now = performance.now();
-  const dt  = Math.min((now - lastTs) / 1000, 0.1); // cap at 100 ms
+  const dt  = Math.min((now - lastTs) / 1000, 0.1);
   lastTs = now;
 
-  // Accelerometer → normalised gravity vector → accel-derived pitch/roll
-  const ax  = pkt.accel[0] * ACCEL_SCALE;
-  const ay  = pkt.accel[1] * ACCEL_SCALE;
-  const az  = pkt.accel[2] * ACCEL_SCALE;
-  const mag = Math.sqrt(ax * ax + ay * ay + az * az) || 1;
+  const ax = pkt.accel[0] * ACCEL_SCALE;
+  const ay = pkt.accel[1] * ACCEL_SCALE;
+  const az = pkt.accel[2] * ACCEL_SCALE;
+  const gx = pkt.gyro[0]  * GYRO_SCALE;
+  const gy = pkt.gyro[1]  * GYRO_SCALE;
+  const gz = pkt.gyro[2]  * GYRO_SCALE;
 
-  const aPitch = Math.atan2(ay / mag, az / mag);
-  const aRoll  = Math.atan2(-ax / mag, az / mag);
+  madgwick.update(ax, ay, az, gx, gy, gz, dt);
 
-  // Gyroscope → angular velocity (rad/s)
-  const gx = pkt.gyro[0] * GYRO_SCALE;
-  const gy = pkt.gyro[1] * GYRO_SCALE;
-
-  // Complementary filter: trust gyro short-term, correct drift with accel
-  ori.pitch = CF_ALPHA * (ori.pitch + gx * dt) + (1 - CF_ALPHA) * aPitch;
-  ori.roll  = CF_ALPHA * (ori.roll  + gy * dt) + (1 - CF_ALPHA) * aRoll;
-
-  handGroup.rotation.x = ori.pitch;
-  handGroup.rotation.z = ori.roll;
+  const currentQuat = correctedQuat();
+  if (hasRef) {
+    handGroup.quaternion.copy(refQuat.clone().invert().multiply(currentQuat));
+  } else {
+    handGroup.quaternion.copy(currentQuat);
+  }
 
   // Flex: update finger pivots + DOM bars
   for (let i = 0; i < 5; i++) {
     const n = Math.max(0, Math.min(pkt.flex[i], FLEX_MAX)) / FLEX_MAX;
-    fingerPivots[i].rotation.x  = n * (Math.PI / 2);   // curl toward palm
-    flexFills[i].style.height   = `${(n * 100).toFixed(1)}%`;
+    fingerPivots[i].rotation.x = n * (Math.PI / 2);
+    flexFills[i].style.height  = `${(n * 100).toFixed(1)}%`;
   }
 }
 
@@ -144,7 +229,15 @@ const { setStatus } = initUI({ onConnect: handleConnect });
 
 const glove = new BleGlove({
   onData:   onPacket,
-  onStatus: (s) => setStatus(s),
+  onStatus: (s) => {
+    setStatus(s);
+    orientBtn.disabled = s !== 'connected';
+    if (s === 'disconnected') {
+      hasRef = false;
+      madgwick.reset();
+      orientBtn.textContent = 'Orient';
+    }
+  },
 });
 
 async function handleConnect() {
