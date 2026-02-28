@@ -11,7 +11,18 @@ public:
 
   void begin();
   bool send(const std::string &msg);
+  bool sendRaw(const uint8_t *data, size_t len);
   bool isConnected() const { return _connected; }
+
+  bool shouldPublish(unsigned long now)
+  {
+    if (now - lastPublishMs >= intervalMs)
+    {
+      lastPublishMs = now;
+      return true;
+    }
+    return false;
+  }
 
 private:
   friend class BleServerCallbacks;
@@ -21,4 +32,7 @@ private:
 
   NimBLECharacteristic *_txChar    = nullptr;
   bool                   _connected = false;
+
+  unsigned long intervalMs;
+  unsigned long lastPublishMs;
 };

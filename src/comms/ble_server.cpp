@@ -47,6 +47,15 @@ bool BleServer::send(const std::string &msg)
   return true;
 }
 
+bool BleServer::sendRaw(const uint8_t *data, size_t len)
+{
+  if (!_connected) return false;
+
+  _txChar->setValue(data, len);
+  _txChar->notify();
+  return true;
+}
+
 void BleServer::_onConnect(NimBLEServer *pServer, ble_gap_conn_desc *desc)
 {
   _connected = true;

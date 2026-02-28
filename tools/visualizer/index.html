@@ -21,6 +21,7 @@
         inset: 0;
       }
 
+      /* ── Top-left overlay: status + connect button ── */
       #overlay {
         position: fixed;
         top: 16px;
@@ -54,13 +55,13 @@
         transition: background 0.3s;
       }
 
-      #status-dot.connected { background: #4ade80; box-shadow: 0 0 6px #4ade80; }
+      #status-dot.connected  { background: #4ade80; box-shadow: 0 0 6px #4ade80; }
       #status-dot.connecting { background: #facc15; animation: pulse 1s infinite; }
-      #status-dot.error { background: #f87171; }
+      #status-dot.error      { background: #f87171; }
 
       @keyframes pulse {
         0%, 100% { opacity: 1; }
-        50% { opacity: 0.3; }
+        50%       { opacity: 0.3; }
       }
 
       #connect-btn {
@@ -79,32 +80,57 @@
         width: fit-content;
       }
 
-      #connect-btn:hover { background: rgba(40, 40, 80, 0.9); border-color: #93c5fd; }
+      #connect-btn:hover    { background: rgba(40, 40, 80, 0.9); border-color: #93c5fd; }
       #connect-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-      #log-panel {
-        width: 340px;
-        max-height: 260px;
-        overflow-y: auto;
+      /* ── Right-side flex bars ── */
+      #flex-panel {
+        position: fixed;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+        padding: 14px 12px 10px;
         background: rgba(10, 10, 20, 0.85);
         border: 1px solid rgba(255,255,255,0.07);
-        border-radius: 8px;
-        padding: 10px;
-        font-size: 12px;
-        line-height: 1.6;
+        border-radius: 10px;
         backdrop-filter: blur(8px);
-        scrollbar-width: thin;
-        scrollbar-color: #333 transparent;
+        z-index: 10;
       }
 
-      #log-panel:empty::before {
-        content: 'Waiting for data…';
+      .f-col {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        height: 180px;
+      }
+
+      .f-track {
+        flex: 1;
+        width: 22px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 4px;
+        overflow: hidden;
+        display: flex;
+        align-items: flex-end;
+      }
+
+      .f-fill {
+        width: 100%;
+        background: linear-gradient(to top, #1d4ed8, #60a5fa);
+        border-radius: 3px;
+        transition: height 0.04s linear;
+      }
+
+      .f-label {
+        font-size: 10px;
         color: #555;
+        user-select: none;
       }
-
-      .log-line { color: #a0c4ff; }
-      .log-line.error { color: #f87171; }
-      .log-line.info { color: #86efac; }
     </style>
   </head>
   <body>
@@ -116,8 +142,10 @@
         <span id="status-text">Disconnected</span>
       </div>
       <button id="connect-btn">Connect</button>
-      <div id="log-panel"></div>
     </div>
+
+    <!-- Finger flex bars: populated by main.js -->
+    <div id="flex-panel"></div>
 
     <script type="module" src="/src/main.js"></script>
   </body>

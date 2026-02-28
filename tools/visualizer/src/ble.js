@@ -3,7 +3,11 @@ const DEVICE_NAME  = 'ESP32-Glove';
 const SERVICE_UUID = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
 const NOTIFY_UUID  = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
 
-const decoder = new TextDecoder();
+// Packet layout (22 bytes, all int16_t little-endian):
+//   bytes  0–9:  flex[5]   – baseline-subtracted ADC deltas, thumb→pinky
+//   bytes 10–15: accel[3]  – ax, ay, az  (MPU6050 raw, ±2 g range)
+//   bytes 16–21: gyro[3]   – gx, gy, gz  (MPU6050 raw, ±250 °/s range)
+const PACKET_BYTES = 22;
 
 export class BleGlove {
   constructor({ onData, onStatus }) {
@@ -26,11 +30,19 @@ export class BleGlove {
 
     const server  = await this._device.gatt.connect();
     const service = await server.getPrimaryService(SERVICE_UUID);
+    const chr     = await service.getCharacteristic(NOTIFY_UUID);
+    await chr.startNotifications();
 
-    const notifyChr = await service.getCharacteristic(NOTIFY_UUID);
-    await notifyChr.startNotifications();
-    notifyChr.addEventListener('characteristicvaluechanged', (e) => {
-      this._onData(decoder.decode(e.target.value).trim());
+    chr.addEventListener('characteristicvaluechanged', (e) => {
+      const buf = e.target.value;
+      if (buf.byteLength < PACKET_BYTES) return;
+
+      const v = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
+      this._onData({
+        flex:  Array.from({ length: 5 }, (_, i) => v.getInt16(i * 2,       true)),
+        accel: Array.from({ length: 3 }, (_, i) => v.getInt16(10 + i * 2,  true)),
+        gyro:  Array.from({ length: 3 }, (_, i) => v.getInt16(16 + i * 2,  true)),
+      });
     });
 
     this._onStatus('connected');

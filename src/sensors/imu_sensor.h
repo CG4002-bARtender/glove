@@ -12,6 +12,7 @@ public:
   void setup() override;
   void read() override;
   void print() override;
+  const int16_t* getData() const { return values; }
 private:
   MPU6050 mpu;
   int16_t values[6]; // ax, ay, az, gx, gy, gz

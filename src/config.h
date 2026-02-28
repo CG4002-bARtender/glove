@@ -43,6 +43,7 @@ namespace config
     constexpr const char* SERVICE_UUID      = "6E400001-B5A3-F393-E0A9-E50E24DCCA9E";
     constexpr const char* CHAR_UUID_TX      = "6E400003-B5A3-F393-E0A9-E50E24DCCA9E";
     constexpr const int   PING_INTERVAL_MS  = 1000;
+    constexpr const int   PUBLISH_INTERVAL_MS = 50;  // 20 Hz BLE publish rate
     constexpr uint16_t    CONN_MIN_INTERVAL = 16;   // 20 ms (units of 1.25 ms)
     constexpr uint16_t    CONN_MAX_INTERVAL = 32;   // 40 ms
     constexpr uint16_t    CONN_LATENCY      = 0;
