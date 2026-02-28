@@ -2,13 +2,13 @@
 #include <Wire.h>
 
 ImuSensor::ImuSensor()
-    : Sensor(config::IMU_INTERVAL_MS),
+    : Sensor(config::imu::INTERVAL_MS),
       values{} {}
 
 void ImuSensor::setup()
 {
-  Wire.begin(config::I2C_SDA_PIN, config::I2C_SCL_PIN);
-  Wire.setClock(config::I2C_CLOCK_SPEED);
+  Wire.begin(config::imu::SDA_PIN, config::imu::SCL_PIN);
+  Wire.setClock(config::imu::CLOCK_SPEED);
   mpu.initialize();
 
   while (!mpu.testConnection())

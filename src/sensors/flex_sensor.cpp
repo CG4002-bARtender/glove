@@ -1,27 +1,27 @@
 #include "flex_sensor.h"
 
-FlexSensor::FlexSensor() : Sensor(config::FLEX_INTERVAL_MS), readings{}, baseline{} {}
+FlexSensor::FlexSensor() : Sensor(config::flex::INTERVAL_MS), readings{}, baseline{} {}
 
 void FlexSensor::setup()
 {
-  for (size_t i = 0; i < config::FLEX_SENSOR_PINS_LEN; ++i)
+  for (size_t i = 0; i < config::flex::PINS_LEN; ++i)
   {
-    pinMode(config::FLEX_SENSOR_PINS[i], INPUT);
+    pinMode(config::flex::PINS[i], INPUT);
   }
 }
 
 void FlexSensor::read()
 {
-  for (size_t i = 0; i < config::FLEX_SENSOR_PINS_LEN; ++i)
+  for (size_t i = 0; i < config::flex::PINS_LEN; ++i)
   {
-    readings[i] = analogRead(config::FLEX_SENSOR_PINS[i]) - baseline[i];
+    readings[i] = analogRead(config::flex::PINS[i]) - baseline[i];
   }
 }
 
 void FlexSensor::print()
 {
   DEBUG_PRINTLN("=========== FLEX SENSORS ==========");
-  for (size_t i = 0; i < config::FLEX_SENSOR_PINS_LEN; ++i)
+  for (size_t i = 0; i < config::flex::PINS_LEN; ++i)
   {
     DEBUG_PRINTF("[Flex Pin: A%d]: %d\n", i, readings[i]);
   }
@@ -30,14 +30,14 @@ void FlexSensor::print()
 
 void FlexSensor::calibrate()
 {
-  for (size_t i = 0; i < config::FLEX_SENSOR_CALIBRATION_ROUNDS; ++i) {
-    for (size_t j = 0; j < config::FLEX_SENSOR_PINS_LEN; ++j) {
-      baseline[i] += analogRead(config::FLEX_SENSOR_PINS[j]);
+  for (size_t i = 0; i < config::flex::CALIBRATION_ROUNDS; ++i) {
+    for (size_t j = 0; j < config::flex::PINS_LEN; ++j) {
+      baseline[i] += analogRead(config::flex::PINS[j]);
     }
-    delay(config::FLEX_SENSOR_CALIBRATION_DELAY);
+    delay(config::flex::CALIBRATION_DELAY);
   } 
 
-  for (size_t j = 0; j < config::FLEX_SENSOR_PINS_LEN; ++j) {
-      baseline[j] /= config::FLEX_SENSOR_CALIBRATION_ROUNDS;
+  for (size_t j = 0; j < config::flex::PINS_LEN; ++j) {
+      baseline[j] /= config::flex::CALIBRATION_ROUNDS;
   }
 }

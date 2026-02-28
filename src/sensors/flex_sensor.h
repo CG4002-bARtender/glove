@@ -14,6 +14,6 @@ public:
 
   void calibrate();
 private:
-  int readings[config::FLEX_SENSOR_PINS_LEN];
-  int baseline[config::FLEX_SENSOR_PINS_LEN];
+  int readings[config::flex::PINS_LEN];
+  int baseline[config::flex::PINS_LEN];
 };
