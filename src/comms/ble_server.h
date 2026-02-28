@@ -1,0 +1,24 @@
+#pragma once
+
+#include <Arduino.h>
+#include <string>
+#include <NimBLEDevice.h>
+
+class BleServer
+{
+public:
+  BleServer() = default;
+
+  void begin();
+  bool send(const std::string &msg);
+  bool isConnected() const { return _connected; }
+
+private:
+  friend class BleServerCallbacks;
+
+  void _onConnect(NimBLEServer *pServer, ble_gap_conn_desc *desc);
+  void _onDisconnect();
+
+  NimBLECharacteristic *_txChar    = nullptr;
+  bool                   _connected = false;
+};

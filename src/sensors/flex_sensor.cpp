@@ -32,7 +32,7 @@ void FlexSensor::calibrate()
 {
   for (size_t i = 0; i < config::flex::CALIBRATION_ROUNDS; ++i) {
     for (size_t j = 0; j < config::flex::PINS_LEN; ++j) {
-      baseline[i] += analogRead(config::flex::PINS[j]);
+      baseline[j] += analogRead(config::flex::PINS[j]);
     }
     delay(config::flex::CALIBRATION_DELAY);
   } 
