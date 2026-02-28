@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ESP32 Glove Visualizer</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      body {
+        background: #0a0a0f;
+        color: #e0e0e0;
+        font-family: 'Courier New', monospace;
+        overflow: hidden;
+        height: 100vh;
+        width: 100vw;
+      }
+
+      #canvas-container {
+        position: fixed;
+        inset: 0;
+      }
+
+      #overlay {
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        pointer-events: none;
+        z-index: 10;
+      }
+
+      #status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        background: rgba(20, 20, 30, 0.85);
+        border: 1px solid rgba(255,255,255,0.08);
+        backdrop-filter: blur(8px);
+        width: fit-content;
+      }
+
+      #status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #555;
+        transition: background 0.3s;
+      }
+
+      #status-dot.connected { background: #4ade80; box-shadow: 0 0 6px #4ade80; }
+      #status-dot.connecting { background: #facc15; animation: pulse 1s infinite; }
+      #status-dot.error { background: #f87171; }
+
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
+      }
+
+      #connect-btn {
+        pointer-events: all;
+        padding: 8px 18px;
+        border-radius: 8px;
+        border: 1px solid rgba(99, 179, 237, 0.4);
+        background: rgba(20, 20, 40, 0.85);
+        color: #93c5fd;
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        backdrop-filter: blur(8px);
+        transition: background 0.2s, border-color 0.2s;
+        width: fit-content;
+      }
+
+      #connect-btn:hover { background: rgba(40, 40, 80, 0.9); border-color: #93c5fd; }
+      #connect-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+      #log-panel {
+        width: 340px;
+        max-height: 260px;
+        overflow-y: auto;
+        background: rgba(10, 10, 20, 0.85);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 8px;
+        padding: 10px;
+        font-size: 12px;
+        line-height: 1.6;
+        backdrop-filter: blur(8px);
+        scrollbar-width: thin;
+        scrollbar-color: #333 transparent;
+      }
+
+      #log-panel:empty::before {
+        content: 'Waiting for data…';
+        color: #555;
+      }
+
+      .log-line { color: #a0c4ff; }
+      .log-line.error { color: #f87171; }
+      .log-line.info { color: #86efac; }
+    </style>
+  </head>
+  <body>
+    <div id="canvas-container"></div>
+
+    <div id="overlay">
+      <div id="status-badge">
+        <span id="status-dot"></span>
+        <span id="status-text">Disconnected</span>
+      </div>
+      <button id="connect-btn">Connect</button>
+      <div id="log-panel"></div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
