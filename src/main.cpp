@@ -1,11 +1,11 @@
 #include <Arduino.h>
-#include "../config.h"
-#include "../sensors/flex_sensor.h"
-#include "../sensors/imu_sensor.h"
-#include "../comms/ble_server.h"
-#include "../detection/activity_detector.h"
-#include "../actuators/buzzer_actuator.h"
-#include "../actuators/rgb_actuator.h"
+#include "config.h"
+#include "sensors/flex_sensor.h"
+#include "sensors/imu_sensor.h"
+#include "comms/ble_server.h"
+#include "detection/activity_detector.h"
+#include "actuators/buzzer_actuator.h"
+#include "actuators/rgb_actuator.h"
 
 static FlexSensor       flex;
 static ImuSensor        imu;
@@ -14,7 +14,6 @@ static ActivityDetector detector;
 static BuzzerActuator   buzzer;
 static RgbActuator      rgb;
 
-// ── Gesture colours (indices 0–9) ────────────────────────────────────────────
 struct Color { uint8_t r, g, b; };
 static const Color GESTURE_COLORS[10] = {
   {255,  20, 147},  // 0 Hot Pink
@@ -133,7 +132,7 @@ void loop()
 
     GloveSample s;
     const int*     f = flex.getData();
-    const int16_t* d = imu.getData();   // ax ay az gx gy gz
+    const int16_t* d = imu.getData();   
 
     uint8_t bits = 0;
     for (int i = 0; i < 5; ++i)
@@ -153,9 +152,8 @@ void loop()
 
       ble.sendGestureWindow(reinterpret_cast<const uint8_t*>(data), len);
 
-      // Trigger "sending" feedback — state machine handles the rest
       if (fbState == FeedbackState::IDLE) {
-        //buzzer.tone(FREQ_SEND);
+        buzzer.tone(FREQ_SEND);
         fbState = FeedbackState::SEND_BEEP;
         fbAt    = now;
         DEBUG_PRINTLN("[Feedback] gesture sent");
@@ -165,7 +163,7 @@ void loop()
 
   updateFeedback(now);
 
-  // Status LED: red = no BLE connection, off = connected (feedback owns LED otherwise)
-  if (fbState == FeedbackState::IDLE)
+  if (fbState == FeedbackState::IDLE) {
     ble.isConnected() ? rgb.off() : rgb.setColor(255, 0, 0);
+  }
 }

@@ -29,16 +29,12 @@ public:
   void begin();
   bool isConnected() const { return _connected; }
 
-  // Convenience: sends START + batched SAMPLEs + END in one call.
-  // data = array of totalSamples GloveSample structs (each BLE_SAMPLE_BYTES bytes, tightly packed).
   bool sendGestureWindow(const uint8_t *data, size_t totalSamples);
 
-  // Low-level gesture framing (kept for tests / manual use)
   bool sendGestureStart(uint16_t sampleCount);
-  bool sendGestureSample(const uint8_t *data, size_t n);  // n samples, n*BLE_SAMPLE_BYTES bytes
+  bool sendGestureSample(const uint8_t *data, size_t n);  
   bool sendGestureEnd();
 
-  // Low-level helpers kept for test scripts / backward compat
   bool send(const std::string &msg);
   bool sendRaw(const uint8_t *data, size_t len);
 
