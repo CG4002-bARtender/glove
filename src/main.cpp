@@ -63,7 +63,7 @@ void updateFeedback(unsigned long now)
     case FeedbackState::WAITING:
       if (now - fbAt >= ACK_WAIT_MS) {
         // Mocked ACK — in production replace with real server response
-        //buzzer.tone(FREQ_ACK_1);
+        buzzer.tone(FREQ_ACK_1);
         fbState = FeedbackState::ACK_BEEP_1;
         fbAt    = now;
       }
@@ -79,7 +79,7 @@ void updateFeedback(unsigned long now)
 
     case FeedbackState::ACK_GAP:
       if (now - fbAt >= ACK_GAP_MS) {
-        //buzzer.tone(FREQ_ACK_2);
+        buzzer.tone(FREQ_ACK_2);
         fbState = FeedbackState::ACK_BEEP_2;
         fbAt    = now;
       }
