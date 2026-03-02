@@ -83,13 +83,13 @@
       #connect-btn:hover    { background: rgba(40, 40, 80, 0.9); border-color: #93c5fd; }
       #connect-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-      #orient-btn {
+#replay-btn {
         pointer-events: all;
         padding: 8px 18px;
         border-radius: 8px;
-        border: 1px solid rgba(74, 222, 128, 0.4);
-        background: rgba(20, 40, 20, 0.85);
-        color: #86efac;
+        border: 1px solid rgba(251, 191, 36, 0.4);
+        background: rgba(30, 25, 10, 0.85);
+        color: #fcd34d;
         font-family: inherit;
         font-size: 13px;
         font-weight: 600;
@@ -99,8 +99,16 @@
         width: fit-content;
       }
 
-      #orient-btn:hover    { background: rgba(20, 60, 20, 0.9); border-color: #86efac; }
-      #orient-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+      #replay-btn:hover    { background: rgba(60, 50, 10, 0.9); border-color: #fcd34d; }
+      #replay-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+      #replay-info {
+        font-size: 12px;
+        color: #fcd34d;
+        letter-spacing: 0.04em;
+        min-height: 1em;
+        pointer-events: none;
+      }
 
       /* ── Right-side flex bars ── */
       #flex-panel {
@@ -150,6 +158,68 @@
         color: #555;
         user-select: none;
       }
+
+      /* ── Bottom-left debug panel ── */
+      #debug-panel {
+        position: fixed;
+        bottom: 16px;
+        left: 16px;
+        padding: 10px 14px;
+        background: rgba(10, 10, 20, 0.88);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 8px;
+        backdrop-filter: blur(8px);
+        font-size: 11px;
+        color: #9ca3af;
+        line-height: 1.7;
+        z-index: 10;
+        pointer-events: none;
+        min-width: 200px;
+      }
+
+      #debug-panel .dp-title {
+        color: #6366f1;
+        font-weight: 700;
+        margin-bottom: 4px;
+        letter-spacing: 0.05em;
+      }
+
+      #debug-panel .dp-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      #debug-panel .dp-val {
+        color: #e2e8f0;
+        font-weight: 600;
+        text-align: right;
+      }
+
+      #debug-panel .dp-ok  { color: #4ade80; }
+      #debug-panel .dp-warn { color: #fb923c; }
+
+      /* ── Bottom-right IMU orientation panel ── */
+      #imu-panel {
+        position: fixed;
+        bottom: 16px;
+        right: 20px;
+        padding: 10px 14px;
+        background: rgba(10, 10, 20, 0.88);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 8px;
+        backdrop-filter: blur(8px);
+        font-size: 11px;
+        color: #9ca3af;
+        line-height: 1.7;
+        z-index: 10;
+        pointer-events: none;
+        min-width: 180px;
+      }
+      #imu-panel .dp-title { color: #34d399; font-weight: 700; margin-bottom: 4px; letter-spacing: 0.05em; }
+      #imu-panel .dp-row   { display: flex; justify-content: space-between; gap: 16px; }
+      #imu-panel .dp-val   { color: #e2e8f0; font-weight: 600; text-align: right; }
+      #imu-panel .dp-note  { font-size: 10px; color: #4b5563; margin-top: 4px; }
     </style>
   </head>
   <body>
@@ -161,11 +231,33 @@
         <span id="status-text">Disconnected</span>
       </div>
       <button id="connect-btn">Connect</button>
-      <button id="orient-btn" disabled>Orient</button>
+      <button id="replay-btn" disabled>Replay</button>
+      <span id="replay-info"></span>
     </div>
 
     <!-- Finger flex bars: populated by main.js -->
     <div id="flex-panel"></div>
+
+    <!-- BLE debug panel: updated by main.js -->
+    <div id="debug-panel">
+      <div class="dp-title">BLE DEBUG</div>
+      <div class="dp-row"><span>Total pkts</span><span class="dp-val" id="dp-total">0</span></div>
+      <div class="dp-row"><span>Last size</span><span class="dp-val" id="dp-size">—</span></div>
+      <div class="dp-row"><span>START</span><span class="dp-val" id="dp-start">0</span></div>
+      <div class="dp-row"><span>SAMPLE</span><span class="dp-val" id="dp-sample">0</span></div>
+      <div class="dp-row"><span>END</span><span class="dp-val" id="dp-end">0</span></div>
+      <div class="dp-row"><span>Unknown</span><span class="dp-val dp-warn" id="dp-unknown">0</span></div>
+      <div class="dp-row"><span>Last type</span><span class="dp-val" id="dp-lasttype">—</span></div>
+    </div>
+
+    <!-- IMU orientation panel: updated by main.js during replay -->
+    <div id="imu-panel">
+      <div class="dp-title">IMU ORIENT</div>
+      <div class="dp-row"><span>rx (roll)</span> <span class="dp-val" id="imu-rx">—</span></div>
+      <div class="dp-row"><span>ry (pitch)</span><span class="dp-val" id="imu-ry">—</span></div>
+      <div class="dp-row"><span>rz (yaw)</span>  <span class="dp-val" id="imu-rz">—</span></div>
+      <div class="dp-note">Axes: Red=X Green=Y Blue=Z</div>
+    </div>
 
     <script type="module" src="/src/main.js"></script>
   </body>

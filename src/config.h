@@ -36,6 +36,7 @@ namespace config
     constexpr int         CALIBRATION_ROUNDS = 30;
     constexpr int         CALIBRATION_DELAY = 100;
     constexpr int         INTERVAL_MS = 330;
+    constexpr int         THRESHOLDS[5] = { 300, 500, 400, 50, 100 };
   }
 
   namespace buzzer {
@@ -65,5 +66,38 @@ namespace config
     constexpr uint16_t    CONN_MAX_INTERVAL = 32;   // 40 ms
     constexpr uint16_t    CONN_LATENCY      = 0;
     constexpr uint16_t    CONN_TIMEOUT      = 600;  // 6 s  (units of 10 ms)
+    constexpr uint16_t    MTU               = 247;
+  }
+
+  namespace detection {
+    // Sliding window for accel variance (~200 ms at 30 Hz)
+    constexpr size_t  WINDOW_SIZE          = 6;
+
+    // Pre-buffer: raw samples kept during IDLE for gesture-onset capture (~167 ms)
+    constexpr size_t  PRE_BUFFER_SIZE      = 5;
+
+    // Hard cap on gesture window length (4 s max at 30 Hz)
+    constexpr size_t  MAX_GESTURE_SAMPLES  = 120;
+
+    // Hysteresis thresholds for the activity score (tune empirically)
+    constexpr float   THRESH_HIGH          = 1.5f;
+    constexpr float   THRESH_LOW           = 0.9f;
+
+    // Debounce: consecutive samples required to confirm state change
+    constexpr size_t  MIN_ACTIVE_SAMPLES   = 2;    // ~67 ms at 30 Hz
+    constexpr size_t  IDLE_TIMEOUT_SAMPLES = 9;    // ~300 ms at 30 Hz
+
+    // Composite-score weights (tune to balance sensor contribution)
+    constexpr float   W1_ACCEL             = 1.0f;
+    constexpr float   W2_GYRO              = 1.0f;
+    constexpr float   W3_FLEX              = 1.5f;
+
+    // EMA smoothing factor (lower = smoother / more lag)
+    constexpr float   EMA_ALPHA            = 0.2f;
+
+    // Physical constants
+    constexpr float   GRAVITY              = 9.81f; // m/s²
+    // Flex activity scale: flex_bits are binary, max 5 bit-changes per sample.
+    constexpr float   FLEX_SCALE           = 1.0f / 5.0f;
   }
 }
