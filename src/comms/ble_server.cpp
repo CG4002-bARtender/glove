@@ -39,78 +39,13 @@ void BleServer::begin()
   DEBUG_PRINTF("[BLE] Advertising as '%s'\n", config::ble::DEVICE_NAME);
 }
 
-// ── Gesture framing ───────────────────────────────────────────────────────────
+// ── State event ───────────────────────────────────────────────────────────────
 
-bool BleServer::sendGestureStart(uint16_t count)
+bool BleServer::sendState(uint8_t stateId)
 {
   if (!_connected) return false;
-  uint8_t buf[3] = {
-    BLE_PKT_GESTURE_START,
-    (uint8_t)(count & 0xFF),
-    (uint8_t)(count >> 8)
-  };
+  const uint8_t buf[1] = { stateId };
   _txChar->setValue(buf, sizeof(buf));
-  _txChar->notify();
-  return true;
-}
-
-// Sends n samples packed into one GESTURE_SAMPLE notify.
-// Layout: [0x02][n][n × 22 bytes]
-bool BleServer::sendGestureSample(const uint8_t *data, size_t n)
-{
-  if (!_connected || n == 0) return false;
-  const size_t pktLen = 2 + n * BLE_SAMPLE_BYTES;
-  uint8_t buf[2 + BLE_SAMPLES_PER_PKT * BLE_SAMPLE_BYTES];
-  buf[0] = BLE_PKT_GESTURE_SAMPLE;
-  buf[1] = static_cast<uint8_t>(n);
-  memcpy(buf + 2, data, n * BLE_SAMPLE_BYTES);
-  _txChar->setValue(buf, pktLen);
-  _txChar->notify();
-  return true;
-}
-
-bool BleServer::sendGestureEnd()
-{
-  if (!_connected) return false;
-  uint8_t buf[1] = { BLE_PKT_GESTURE_END };
-  _txChar->setValue(buf, sizeof(buf));
-  _txChar->notify();
-  return true;
-}
-
-// Sends a full gesture window: START + batched SAMPLEs + END.
-// Packs BLE_SAMPLES_PER_PKT samples per notify to keep packet count low.
-bool BleServer::sendGestureWindow(const uint8_t *data, size_t totalSamples)
-{
-  if (!_connected) return false;
-
-  sendGestureStart(static_cast<uint16_t>(totalSamples));
-
-  size_t sent = 0;
-  while (sent < totalSamples) {
-    const size_t batch = min(totalSamples - sent, BLE_SAMPLES_PER_PKT);
-    sendGestureSample(data + sent * BLE_SAMPLE_BYTES, batch);
-    sent += batch;
-  }
-
-  sendGestureEnd();
-  return true;
-}
-
-// ── Low-level helpers ─────────────────────────────────────────────────────────
-
-bool BleServer::send(const std::string &msg)
-{
-  if (!_connected) return false;
-  _txChar->setValue(msg);
-  _txChar->notify();
-  return true;
-}
-
-bool BleServer::sendRaw(const uint8_t *data, size_t len)
-{
-  if (!_connected) return false;
-  _txChar->setValue(data, len);
   _txChar->notify();
   return true;
 }

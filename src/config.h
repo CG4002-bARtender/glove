@@ -69,6 +69,25 @@ namespace config
     constexpr uint16_t    MTU               = 247;
   }
 
+  namespace state {
+    // Flex thresholds (baseline-subtracted ADC values)
+    constexpr int     FLEX_INDEX             = 200;
+    constexpr int     FLEX_MIDDLE            = 100;
+    constexpr int     FLEX_RING              = 80;
+    constexpr int     FLEX_THUMB_IN          = 200;  // thumb flexed → GRAB
+    constexpr int     FLEX_THUMB_OUT         = 0;    // thumb extended → SERVE
+
+    // IMU thresholds (raw MPU6050 int16_t, ±2 g scale)
+    constexpr int     POUR_AY_THRESHOLD      = 3000; // ay > 3000 → wrist tilted to pour
+    constexpr int64_t SHAKE_SPREAD_THRESHOLD = 200000000LL; // max-min of |a|² window
+
+    // Debounce: consecutive samples required before state transition (~100 ms at 30 Hz)
+    constexpr int     DEBOUNCE_SAMPLES       = 3;
+    // How many consecutive non-SHAKE samples needed to exit SHAKE (~500 ms at 30 Hz)
+    constexpr int     SHAKE_EXIT_DEBOUNCE    = 15;
+    constexpr int     SHAKE_WINDOW           = 6;    // rolling |a|² buffer depth (~200 ms)
+  }
+
   namespace detection {
     // Sliding window for accel variance (~200 ms at 30 Hz)
     constexpr size_t  WINDOW_SIZE          = 6;
