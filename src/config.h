@@ -31,7 +31,7 @@ namespace config
   }
 
   namespace flex {
-    constexpr int         PINS[] = {A0,A1,A2,A3,A4};
+    constexpr int         PINS[] = {A0,A1,A2,A3};
     constexpr size_t      PINS_LEN = sizeof(PINS) / sizeof(int);
     constexpr int         CALIBRATION_ROUNDS = 30;
     constexpr int         CALIBRATION_DELAY = 100;
@@ -56,17 +56,20 @@ namespace config
     constexpr int         LEDC_RES   = 8;    // bits (0–255)
   }
 
-  namespace ble {
-    constexpr const char* DEVICE_NAME       = "ESP32-Glove";
-    constexpr const char* SERVICE_UUID      = "6E400001-B5A3-F393-E0A9-E50E24DCCA9E";
-    constexpr const char* CHAR_UUID_TX      = "6E400003-B5A3-F393-E0A9-E50E24DCCA9E";
-    constexpr const int   PING_INTERVAL_MS  = 1000;
-    constexpr const int   PUBLISH_INTERVAL_MS = 50;  // 20 Hz BLE publish rate
-    constexpr uint16_t    CONN_MIN_INTERVAL = 16;   // 20 ms (units of 1.25 ms)
-    constexpr uint16_t    CONN_MAX_INTERVAL = 32;   // 40 ms
-    constexpr uint16_t    CONN_LATENCY      = 0;
-    constexpr uint16_t    CONN_TIMEOUT      = 600;  // 6 s  (units of 10 ms)
-    constexpr uint16_t    MTU               = 247;
+  namespace wifi {
+    constexpr const char* SSID     = "IphoneAlam";
+    constexpr const char* PASSWORD = "pasuhagu";
+  }
+
+  namespace mqtt {
+    constexpr const char* BROKER              = "172.20.10.2";
+    constexpr int         PORT             = 1883;
+    constexpr const char* USERNAME         = "test";
+    constexpr const char* PASSWORD         = "test";
+    constexpr const char* CLIENT_ID        = "glove";
+    constexpr const char* TOPIC_STATE      = "glove";
+    constexpr size_t      CHUNK_SIZE       = 256;
+    constexpr size_t      JSON_BUFFER_SIZE = 128;
   }
 
   namespace state {
@@ -82,7 +85,7 @@ namespace config
     constexpr int64_t SHAKE_SPREAD_THRESHOLD = 200000000LL; // max-min of |a|² window
 
     // Debounce: consecutive samples required before state transition (~100 ms at 30 Hz)
-    constexpr int     DEBOUNCE_SAMPLES       = 3;
+    constexpr int     DEBOUNCE_SAMPLES       = 5;
     // How many consecutive non-SHAKE samples needed to exit SHAKE (~500 ms at 30 Hz)
     constexpr int     SHAKE_EXIT_DEBOUNCE    = 15;
     constexpr int     SHAKE_WINDOW           = 6;    // rolling |a|² buffer depth (~200 ms)
