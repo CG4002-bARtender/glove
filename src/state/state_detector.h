@@ -23,6 +23,12 @@ private:
   int     _magSqHead  = 0;
   int     _magSqCount = 0;
 
+  // Per-finger hysteresis state
+  bool    _indexFlex  = false;
+  bool    _middleFlex = false;
+  bool    _ringFlex   = false;
+
+
   // Debounce
   HandState _current   = HandState::RELEASE;
   HandState _candidate = HandState::RELEASE;

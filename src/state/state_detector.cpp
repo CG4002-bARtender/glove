@@ -29,17 +29,23 @@ HandState StateDetector::classify(const int* flex, const int16_t* imu)
 
   // Pin mapping: flex[0]=thumb(A0), flex[1]=index(A1), flex[2]=middle(A2),
   //              flex[3]=ring(A3), flex[4]=unused(A4)
-  const bool four_curled = flex[1] > config::state::FLEX_INDEX
-                        && flex[2] > config::state::FLEX_MIDDLE
-                        && flex[3] > config::state::FLEX_RING;
+  // Hysteresis: flip state only when crossing the enter/exit boundary
+  if (!_indexFlex  && flex[1] > config::state::FLEX_INDEX_ENTER)  _indexFlex  = true;
+  if ( _indexFlex  && flex[1] < config::state::FLEX_INDEX_EXIT)   _indexFlex  = false;
+  if (!_middleFlex && flex[2] > config::state::FLEX_MIDDLE_ENTER) _middleFlex = true;
+  if ( _middleFlex && flex[2] < config::state::FLEX_MIDDLE_EXIT)  _middleFlex = false;
+  if (!_ringFlex   && flex[3] > config::state::FLEX_RING_ENTER)   _ringFlex   = true;
+  if ( _ringFlex   && flex[3] < config::state::FLEX_RING_EXIT)    _ringFlex   = false;
+
+  const bool four_curled = _indexFlex && _middleFlex && _ringFlex;
 
   const bool grab_flex  = four_curled && flex[0] > config::state::FLEX_THUMB_IN;
   const bool serve_flex = four_curled && flex[0] < config::state::FLEX_THUMB_OUT;
 
   if (grab_flex)
   {
-    if (shaking)                                      return HandState::SHAKE;
-    if (imu[1] > config::state::POUR_AY_THRESHOLD)   return HandState::POUR;
+    if (shaking)                                        return HandState::SHAKE;
+    if (imu[1] > config::state::POUR_AY_THRESHOLD)     return HandState::POUR;
     return HandState::GRAB;
   }
   if (serve_flex) return HandState::SERVE;

@@ -85,6 +85,8 @@ void loop()
       const HandState state = detector.current();
       const uint8_t   id    = static_cast<uint8_t>(state);
 
+      const int* f = flex.getData();
+      DEBUG_PRINTF("[Flex] %d %d %d %d\n", f[0], f[1], f[2], f[3]);
       DEBUG_PRINTF("[State] -> %s\n", handStateName(state));
 
       mqtt.publish(config::mqtt::TOPIC_STATE, &id, 1);
