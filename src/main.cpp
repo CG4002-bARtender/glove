@@ -2,7 +2,7 @@
 #include "config.h"
 #include "sensors/flex_sensor.h"
 #include "sensors/imu_sensor.h"
-#include "comms/mqtt_client.h"
+#include "comms/ble_server.h"
 #include "state/state_detector.h"
 #include "state/hand_state.h"
 #include "actuators/buzzer_actuator.h"
@@ -10,14 +10,7 @@
 
 static FlexSensor     flex;
 static ImuSensor      imu;
-static MqttClient     mqtt(
-  config::mqtt::BROKER,
-  config::mqtt::PORT,
-  config::mqtt::CLIENT_ID,
-  0,  // event-driven, no interval
-  config::mqtt::USERNAME,
-  config::mqtt::PASSWORD
-);
+static BleServer      ble;
 static StateDetector  detector;
 static BuzzerActuator buzzer;
 static RgbActuator    rgb;
@@ -26,7 +19,7 @@ static bool          buzzerOn    = false;
 static unsigned long buzzerOffAt = 0;
 
 static constexpr unsigned long BEEP_MS   = 80;
-static constexpr uint16_t      BEEP_FREQ = 440;
+static constexpr int           BEEP_FREQ = 440;
 
 static void setStateColor(HandState s)
 {
@@ -55,7 +48,7 @@ void setup()
   DEBUG_PRINTLN("Calibration done. Ready.");
 
   // Rising arpeggio: C5 → E5 → G5 → C6
-  const uint16_t notes[]    = { 523, 659, 784, 1047 };
+  const int notes[]         = { 523, 659, 784, 1047 };
   const int      durations[] = { 80, 80, 80, 160 };
   for (int i = 0; i < 4; ++i) {
     buzzer.tone(notes[i]);
@@ -64,15 +57,13 @@ void setup()
     delay(30);
   }
 
-  mqtt.connect(config::wifi::SSID, config::wifi::PASSWORD);
-  rgb.setColor(0, 255, 0);  // Green — MQTT connected, idle
+  ble.begin();
+  // RGB stays red until a client connects
 }
 
 void loop()
 {
   const unsigned long now = millis();
-
-  mqtt.loop();
 
   if (flex.shouldRead(now)) flex.read();
 
@@ -83,13 +74,13 @@ void loop()
     if (detector.update(flex.getData(), imu.getData()))
     {
       const HandState state = detector.current();
-      const uint8_t   id    = static_cast<uint8_t>(state);
+      const unsigned char id = static_cast<unsigned char>(state);
 
       const int* f = flex.getData();
       DEBUG_PRINTF("[Flex] %d %d %d %d\n", f[0], f[1], f[2], f[3]);
       DEBUG_PRINTF("[State] -> %s\n", handStateName(state));
 
-      mqtt.publish(config::mqtt::TOPIC_STATE, &id, 1);
+      ble.sendState(id);
 
       buzzer.tone(BEEP_FREQ);
       buzzerOn    = true;
