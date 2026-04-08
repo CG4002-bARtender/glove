@@ -24,8 +24,8 @@ private:
   int     _magSqCount = 0;
 
   // Per-finger hysteresis state
+  bool    _thumbFlex  = false;
   bool    _indexFlex  = false;
-  bool    _middleFlex = false;
   bool    _ringFlex   = false;
 
 

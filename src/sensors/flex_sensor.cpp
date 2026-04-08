@@ -14,7 +14,10 @@ void FlexSensor::read()
 {
   for (size_t i = 0; i < config::flex::PINS_LEN; ++i)
   {
-    readings[i] = analogRead(config::flex::PINS[i]) - baseline[i];
+    int sum = 0;
+    for (int s = 0; s < config::flex::OVERSAMPLE; ++s)
+      sum += analogRead(config::flex::PINS[i]);
+    readings[i] = (sum / config::flex::OVERSAMPLE) - baseline[i];
   }
 }
 
